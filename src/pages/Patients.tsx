@@ -1,55 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { patients } from '@/utils/mockData';
+import { Search, Filter, Plus, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Patient } from '@/utils/mockData';
-import { getPatients, deletePatient } from '@/services/patientService';
-import PatientForm from '@/components/PatientForm';
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 const Patients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
   const { toast } = useToast();
-
-  // Load patients on mount
-  useEffect(() => {
-    loadPatients();
-  }, []);
-
-  const loadPatients = () => {
-    const loadedPatients = getPatients();
-    setPatients(loadedPatients);
-  };
 
   // Filter patients based on search term and filter
   const filteredPatients = patients.filter(patient => {
@@ -69,7 +29,7 @@ const Patients = () => {
 
   // Format date to display
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('en-US', {
+    return date.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -90,34 +50,24 @@ const Patients = () => {
 
   // Handle actions
   const handleAddPatient = () => {
-    setSelectedPatient(null);
-    setIsFormOpen(true);
+    toast({
+      title: "Feature coming soon",
+      description: "The ability to add patients will be available in future updates.",
+    });
   };
 
-  const handleEditPatient = (patient: Patient) => {
-    setSelectedPatient(patient);
-    setIsFormOpen(true);
+  const handleEditPatient = (patientId: string) => {
+    toast({
+      title: "Edit patient",
+      description: `Editing patient with ID: ${patientId}`,
+    });
   };
 
-  const handleFormSuccess = () => {
-    setIsFormOpen(false);
-    loadPatients();
-  };
-
-  const confirmDeletePatient = (patientId: string) => {
-    setPatientToDelete(patientId);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeletePatient = () => {
-    if (patientToDelete) {
-      const success = deletePatient(patientToDelete);
-      if (success) {
-        loadPatients();
-      }
-    }
-    setIsDeleteDialogOpen(false);
-    setPatientToDelete(null);
+  const handleDeletePatient = (patientId: string) => {
+    toast({
+      title: "Delete patient",
+      description: `Deleting patient with ID: ${patientId}`,
+    });
   };
 
   return (
@@ -135,23 +85,12 @@ const Patients = () => {
             />
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                onClick={handleAddPatient}
-                className="bg-medical-blue hover:bg-medical-blue-dark flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-2" /> Add Patient
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] p-0">
-              <PatientForm 
-                patient={selectedPatient || undefined} 
-                onSuccess={handleFormSuccess}
-                onCancel={() => setIsFormOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button 
+            onClick={handleAddPatient}
+            className="bg-medical-blue hover:bg-medical-blue-dark flex items-center"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Add Patient
+          </Button>
         </div>
       </div>
 
@@ -199,39 +138,41 @@ const Patients = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Patient</TableHead>
-              <TableHead>Condition</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Department</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Arrival Time</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrival Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
             {filteredPatients.map((patient) => (
-              <TableRow key={patient.id} className="hover:bg-gray-50">
-                <TableCell>
-                  <div className="flex flex-col">
-                    <div className="text-sm font-medium text-gray-900">{patient.name}</div>
-                    <div className="text-sm text-gray-500">{patient.age} y/o, {patient.gender}</div>
+              <tr key={patient.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{patient.name}</div>
+                      <div className="text-sm text-gray-500">{patient.age} y/o, {patient.gender}</div>
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{patient.condition}</div>
-                </TableCell>
-                <TableCell>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityColor(patient.priority)}`}>
                     {patient.priority}
                   </span>
-                </TableCell>
-                <TableCell className="text-sm text-gray-500">
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {patient.department}
-                </TableCell>
-                <TableCell>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                     ${patient.status === 'Waiting' ? 'bg-blue-100 text-blue-800' : 
                       patient.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
@@ -239,16 +180,16 @@ const Patients = () => {
                       'bg-red-100 text-red-800'}`}>
                     {patient.status}
                   </span>
-                </TableCell>
-                <TableCell className="text-sm text-gray-500">
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatDate(patient.arrivalTime)}
-                </TableCell>
-                <TableCell>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => handleEditPatient(patient)}
+                      onClick={() => handleEditPatient(patient.id)}
                       title="Edit patient"
                     >
                       <Edit className="h-4 w-4 text-gray-500" />
@@ -256,17 +197,17 @@ const Patients = () => {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => confirmDeletePatient(patient.id)}
+                      onClick={() => handleDeletePatient(patient.id)}
                       title="Delete patient"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
 
         {filteredPatients.length === 0 && (
           <div className="text-center py-10">
@@ -274,24 +215,6 @@ const Patients = () => {
           </div>
         )}
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this patient? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeletePatient} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
