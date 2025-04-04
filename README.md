@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to Our patient-transfer-system
 
 ## Project info
 
@@ -7,12 +7,6 @@
 ## How can I edit this code?
 
 There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/a488a7d9-a002-47bb-b52f-bf9f20787648) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
 
