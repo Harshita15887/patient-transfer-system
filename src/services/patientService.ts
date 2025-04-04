@@ -105,3 +105,28 @@ export const deletePatient = (id: string): boolean => {
   
   return true;
 };
+
+// Discharge a patient
+export const dischargePatient = (id: string): Patient | null => {
+  const patients = loadPatients();
+  const patientIndex = patients.findIndex(patient => patient.id === id);
+  
+  if (patientIndex === -1) {
+    toast.error(`Patient with ID ${id} not found`);
+    return null;
+  }
+  
+  // Update patient status to discharged
+  const updatedPatient = {
+    ...patients[patientIndex],
+    status: 'Discharged' as const,
+    dischargeDate: new Date(), // Add discharge date
+  };
+  
+  patients[patientIndex] = updatedPatient;
+  savePatients(patients);
+  toast.success(`Patient ${updatedPatient.name} discharged successfully`);
+  
+  return updatedPatient;
+};
+

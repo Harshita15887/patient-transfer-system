@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Patient } from '@/utils/mockData';
 import { getPatients, deletePatient } from '@/services/patientService';
 import PatientForm from '@/components/PatientForm';
+import DischargePatient from '@/components/DischargePatient';
 import {
   Dialog,
   DialogContent,
@@ -63,6 +64,7 @@ const Patients = () => {
     if (filter === 'inProgress') return matchesSearch && patient.status === 'In Progress';
     if (filter === 'completed') return matchesSearch && patient.status === 'Completed';
     if (filter === 'transfer') return matchesSearch && patient.status === 'Transfer Required';
+    if (filter === 'discharged') return matchesSearch && patient.status === 'Discharged';
     
     return matchesSearch;
   });
@@ -155,7 +157,7 @@ const Patients = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
+      <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-2">
         <Button 
           variant={filter === 'all' ? 'default' : 'outline'} 
           size="sm"
@@ -195,6 +197,14 @@ const Patients = () => {
           className={filter === 'transfer' ? 'bg-medical-blue hover:bg-medical-blue-dark' : ''}
         >
           Transfer Required
+        </Button>
+        <Button 
+          variant={filter === 'discharged' ? 'default' : 'outline'} 
+          size="sm"
+          onClick={() => setFilter('discharged')}
+          className={filter === 'discharged' ? 'bg-medical-blue hover:bg-medical-blue-dark' : ''}
+        >
+          Discharged
         </Button>
       </div>
 
@@ -236,6 +246,7 @@ const Patients = () => {
                     ${patient.status === 'Waiting' ? 'bg-blue-100 text-blue-800' : 
                       patient.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
                       patient.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                      patient.status === 'Discharged' ? 'bg-purple-100 text-purple-800' :
                       'bg-red-100 text-red-800'}`}>
                     {patient.status}
                   </span>
@@ -245,14 +256,24 @@ const Patients = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleEditPatient(patient)}
-                      title="Edit patient"
-                    >
-                      <Edit className="h-4 w-4 text-gray-500" />
-                    </Button>
+                    {patient.status !== 'Discharged' && (
+                      <>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEditPatient(patient)}
+                          title="Edit patient"
+                        >
+                          <Edit className="h-4 w-4 text-gray-500" />
+                        </Button>
+                        
+                        <DischargePatient 
+                          patientId={patient.id} 
+                          onSuccess={loadPatients} 
+                        />
+                      </>
+                    )}
+                    
                     <Button 
                       variant="ghost" 
                       size="icon" 

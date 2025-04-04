@@ -33,7 +33,7 @@ const patientFormSchema = z.object({
   condition: z.string().min(3, { message: 'Condition must be at least 3 characters' }),
   priority: z.enum(['Low', 'Medium', 'High', 'Critical']),
   department: z.string().min(2, { message: 'Department is required' }),
-  status: z.enum(['Waiting', 'In Progress', 'Completed', 'Transfer Required']),
+  status: z.enum(['Waiting', 'In Progress', 'Completed', 'Transfer Required', 'Discharged']),
 });
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
@@ -83,11 +83,19 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSuccess, onCancel 
           onSuccess();
         }
       } else {
-        // Create new patient
-        createPatient({
-          ...data,
-          arrivalTime: new Date(), // Set current time as arrival time
-        });
+        // Create new patient - ensure all required fields are present
+        const newPatient: Omit<Patient, 'id'> = {
+          name: data.name,
+          age: data.age,
+          gender: data.gender,
+          condition: data.condition,
+          priority: data.priority,
+          department: data.department,
+          status: data.status,
+          arrivalTime: new Date(),
+        };
+        
+        createPatient(newPatient);
         onSuccess();
       }
     } catch (error) {
