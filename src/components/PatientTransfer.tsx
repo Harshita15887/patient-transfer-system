@@ -1,8 +1,19 @@
 
 import React, { useState } from 'react';
 import { patients, hospitals } from '@/utils/mockData';
-import { ArrowRight, BedDouble, Clock } from 'lucide-react';
+import { ArrowRight, BedDouble, Clock, Ambulance, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const PatientTransfer = () => {
   // Filter patients that need transfer
@@ -13,6 +24,15 @@ const PatientTransfer = () => {
   
   // State to track which patient's details are expanded
   const [expandedPatient, setExpandedPatient] = useState<string | null>(null);
+  
+  // State for transfer confirmation dialog
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [transferDetails, setTransferDetails] = useState<{
+    patient: typeof patients[0] | null;
+    hospital: typeof hospitals[0] | null;
+  }>({ patient: null, hospital: null });
+  
+  const { toast } = useToast();
   
   const togglePatientExpanded = (patientId: string) => {
     if (expandedPatient === patientId) {
@@ -35,6 +55,32 @@ const PatientTransfer = () => {
       const mins = diffMins % 60;
       return `${hours}h ${mins}m`;
     }
+  };
+  
+  // Initiate transfer process
+  const initiateTransfer = (patient: typeof patients[0], hospital: typeof hospitals[0]) => {
+    setTransferDetails({ patient, hospital });
+    setIsConfirmOpen(true);
+  };
+  
+  // Execute the transfer
+  const executeTransfer = () => {
+    if (!transferDetails.patient || !transferDetails.hospital) return;
+    
+    // In a real application, this would be an API call to update the database
+    // For our mock implementation, we'll just show a toast notification
+    
+    setTimeout(() => {
+      toast({
+        title: "Transfer Initiated",
+        description: `${transferDetails.patient?.name} is being transferred to ${transferDetails.hospital?.name}`,
+        variant: "default",
+      });
+      
+      // Close the dialog and reset expanded state
+      setIsConfirmOpen(false);
+      setExpandedPatient(null);
+    }, 1000);
   };
   
   return (
@@ -86,14 +132,20 @@ const PatientTransfer = () => {
                       <div key={hospital.id} className="flex justify-between items-center p-2 border rounded hover:bg-gray-50">
                         <div>
                           <div className="font-medium text-sm">{hospital.name}</div>
-                          <div className="text-xs text-gray-500">{hospital.address}</div>
+                          <div className="text-xs text-gray-500 flex items-center">
+                            <MapPin className="h-3 w-3 mr-1 text-gray-400" />
+                            {hospital.address}
+                          </div>
                           <div className="flex items-center mt-1 text-xs">
                             <BedDouble className="h-3 w-3 text-gray-400 mr-1" />
                             <span className="text-medical-success font-medium">{hospital.availableBeds}</span>
                             <span className="text-gray-500"> / {hospital.totalBeds} beds available</span>
                           </div>
                         </div>
-                        <button className="bg-medical-blue hover:bg-medical-blue-dark text-white px-3 py-1.5 rounded-lg text-sm flex items-center">
+                        <button 
+                          onClick={() => initiateTransfer(patient, hospital)}
+                          className="bg-medical-blue hover:bg-medical-blue-dark text-white px-3 py-1.5 rounded-lg text-sm flex items-center"
+                        >
                           Transfer <ArrowRight className="ml-1 h-4 w-4" />
                         </button>
                       </div>
@@ -102,7 +154,15 @@ const PatientTransfer = () => {
                   {sortedHospitals.filter(h => h.availableBeds > 0 && h.specialties.includes(patient.department)).length === 0 && (
                     <div className="text-center p-3 bg-red-50 rounded border border-red-100">
                       <p className="text-red-600 text-sm">No available hospitals with {patient.department} specialty</p>
-                      <button className="mt-2 bg-medical-blue hover:bg-medical-blue-dark text-white px-3 py-1.5 rounded-lg text-sm">
+                      <button 
+                        onClick={() => {
+                          toast({
+                            title: "Searching all hospitals",
+                            description: "Expanding search to include all available hospitals regardless of specialty",
+                          });
+                        }}
+                        className="mt-2 bg-medical-blue hover:bg-medical-blue-dark text-white px-3 py-1.5 rounded-lg text-sm"
+                      >
                         Check All Hospitals
                       </button>
                     </div>
@@ -119,6 +179,28 @@ const PatientTransfer = () => {
           </div>
         )}
       </div>
+      
+      {/* Transfer Confirmation Dialog */}
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Patient Transfer</AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to transfer <span className="font-medium">{transferDetails.patient?.name}</span> to <span className="font-medium">{transferDetails.hospital?.name}</span>.
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md flex items-center">
+                <Ambulance className="h-5 w-5 text-amber-500 mr-2" />
+                <span className="text-amber-700 text-sm">An ambulance will be dispatched for this transfer.</span>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeTransfer} className="bg-medical-blue hover:bg-medical-blue-dark">
+              Confirm Transfer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

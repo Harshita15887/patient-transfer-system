@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Activity, Users, Clock, BedDouble } from 'lucide-react';
+import { Activity, Users, Clock, BedDouble, Ambulance } from 'lucide-react';
 import { stats } from '@/utils/mockData';
 
 const Stats = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
       <div className="stat-card">
         <div className="flex items-center">
           <div className="rounded-full bg-blue-100 p-3 mr-4">
@@ -50,6 +50,18 @@ const Stats = () => {
           <div>
             <div className="stat-value">{stats.transfersInitiated.today}</div>
             <div className="stat-label">Transfers Today</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="stat-card">
+        <div className="flex items-center">
+          <div className="rounded-full bg-red-100 p-3 mr-4">
+            <Ambulance className="h-6 w-6 text-medical-error" />
+          </div>
+          <div>
+            <div className="stat-value">{stats.transfersInitiated.pending}</div>
+            <div className="stat-label">Pending Transfers</div>
           </div>
         </div>
       </div>
