@@ -1,14 +1,12 @@
 
 import React, { useState } from 'react';
-import { getPatients } from '@/services/patientService';
+import { patients } from '@/utils/mockData';
 import { ChevronDown, ChevronUp, Clock, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PatientQueue = () => {
   const [sort, setSort] = useState<'priority' | 'time'>('priority');
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const patients = getPatients().filter(p => p.status !== 'Discharged');
   
   const getPriorityOrder = (priority: string): number => {
     switch (priority) {
@@ -136,12 +134,6 @@ const PatientQueue = () => {
             </div>
           </div>
         ))}
-        
-        {sortedPatients.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No patients in queue</p>
-          </div>
-        )}
       </div>
     </div>
   );

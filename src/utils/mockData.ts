@@ -1,3 +1,4 @@
+
 export interface Hospital {
   id: string;
   name: string;
@@ -16,8 +17,7 @@ export interface Patient {
   priority: 'Low' | 'Medium' | 'High' | 'Critical';
   arrivalTime: Date;
   department: string;
-  status: 'Waiting' | 'In Progress' | 'Completed' | 'Transfer Required' | 'Discharged';
-  dischargeDate?: Date;
+  status: 'Waiting' | 'In Progress' | 'Completed' | 'Transfer Required';
 }
 
 export interface MedicineItem {
